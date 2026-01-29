@@ -58,14 +58,14 @@ export function calculateTransfer(scenario: Scenario): TransferResult {
   const fileSizeBytes = fileSizeToBytes(scenario.fileSizeValue, scenario.fileSizeUnit);
   const fileSizeBits = fileSizeBytes * 8;
   
-  // Bandwidth per user in bits per second
-  const bandwidthPerUserBps = (scenario.bandwidthMbps * 1_000_000) / scenario.concurrentUsers;
+  // Bandwidth in bits per second
+  const bandwidthBps = scenario.bandwidthMbps * 1_000_000;
   
   // RTT in seconds
   const rttSeconds = scenario.latencyMs / 1000;
   
   // Bandwidth-delay product (BDP) - max data in flight at full bandwidth
-  const bdpBytes = (bandwidthPerUserBps / 8) * rttSeconds;
+  const bdpBytes = (bandwidthBps / 8) * rttSeconds;
   
   // Protocol window throughput (bytes per second)
   // This is the max throughput if window-limited: window_size / RTT
@@ -74,7 +74,7 @@ export function calculateTransfer(scenario: Scenario): TransferResult {
     : Infinity;
   
   // Effective throughput is the minimum of bandwidth and window-limited throughput
-  const effectiveThroughputBps = Math.min(bandwidthPerUserBps, windowThroughputBps);
+  const effectiveThroughputBps = Math.min(bandwidthBps, windowThroughputBps);
   
   // Is this transfer bandwidth-limited or window-limited?
   const isWindowLimited = protocol.windowSizeBytes < bdpBytes;
@@ -83,7 +83,7 @@ export function calculateTransfer(scenario: Scenario): TransferResult {
   const totalTime = fileSizeBits / effectiveThroughputBps;
   
   // Base transfer time (what it would be at full bandwidth with no latency)
-  const baseTransferTime = fileSizeBits / bandwidthPerUserBps;
+  const baseTransferTime = fileSizeBits / bandwidthBps;
   
   // Latency overhead is the difference (time lost due to window limitation)
   const latencyOverhead = totalTime - baseTransferTime;
@@ -114,7 +114,6 @@ export interface CalculationStep {
 
 export function getCalculationBreakdown(scenario: Scenario, result: TransferResult): CalculationStep[] {
   const protocol = getProtocol(scenario.protocolId);
-  const bandwidthPerUser = scenario.bandwidthMbps / scenario.concurrentUsers;
   const rttSeconds = scenario.latencyMs / 1000;
   
   // Window-limited throughput
@@ -129,13 +128,13 @@ export function getCalculationBreakdown(scenario: Scenario, result: TransferResu
       value: formatBytes(result.fileSizeBytes),
     },
     {
-      label: 'Raw Bandwidth',
-      formula: `${scenario.bandwidthMbps} Mbps ÷ ${scenario.concurrentUsers} user${scenario.concurrentUsers > 1 ? 's' : ''}`,
-      value: `${bandwidthPerUser.toFixed(0)} Mbps`,
+      label: 'Bandwidth',
+      formula: `${scenario.bandwidthMbps} Mbps`,
+      value: `${scenario.bandwidthMbps} Mbps`,
     },
     {
       label: 'Bandwidth-Delay Product',
-      formula: `${bandwidthPerUser} Mbps × ${scenario.latencyMs} ms`,
+      formula: `${scenario.bandwidthMbps} Mbps × ${scenario.latencyMs} ms`,
       value: formatBytes(result.bdpBytes),
     },
     {
@@ -167,8 +166,8 @@ export function getCalculationBreakdown(scenario: Scenario, result: TransferResu
   steps.push({
     label: 'Effective Throughput',
     formula: result.isWindowLimited 
-      ? `min(${bandwidthPerUser} Mbps, ${windowThroughputMbps.toFixed(0)} Mbps)`
-      : `${bandwidthPerUser} Mbps (full bandwidth)`,
+      ? `min(${scenario.bandwidthMbps} Mbps, ${windowThroughputMbps.toFixed(0)} Mbps)`
+      : `${scenario.bandwidthMbps} Mbps (full bandwidth)`,
     value: `${result.effectiveThroughputMbps.toFixed(0)} Mbps`,
   });
 

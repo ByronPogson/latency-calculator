@@ -18,7 +18,6 @@ export interface Scenario {
   bandwidthMbps: number;
   latencyMs: number;
   protocolId: ProtocolId;
-  concurrentUsers: number;
 }
 
 export interface TransferResult {

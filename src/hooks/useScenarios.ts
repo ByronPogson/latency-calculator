@@ -69,6 +69,14 @@ export function useScenarios() {
     });
   }, []);
 
+  const importScenarios = useCallback((newScenarios: Scenario[], replace: boolean) => {
+    if (replace) {
+      setScenarios(newScenarios);
+    } else {
+      setScenarios((prev) => [...prev, ...newScenarios]);
+    }
+  }, []);
+
   const scenariosWithResults: ScenarioWithResult[] = scenarios.map((scenario) => ({
     ...scenario,
     result: calculateTransfer(scenario),
@@ -81,5 +89,6 @@ export function useScenarios() {
     deleteScenario,
     clearScenarios,
     reorderScenarios,
+    importScenarios,
   };
 }

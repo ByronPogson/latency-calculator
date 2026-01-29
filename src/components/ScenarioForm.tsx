@@ -27,7 +27,6 @@ export function ScenarioForm({ onSubmit }: ScenarioFormProps) {
   const [bandwidthMbps, setBandwidthMbps] = useState('500');
   const [latencyMs, setLatencyMs] = useState('55');
   const [protocolId, setProtocolId] = useState<ProtocolId>('smb2');
-  const [concurrentUsers, setConcurrentUsers] = useState('1');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +38,6 @@ export function ScenarioForm({ onSubmit }: ScenarioFormProps) {
       bandwidthMbps: parseFloat(bandwidthMbps) || 100,
       latencyMs: parseFloat(latencyMs) || 10,
       protocolId,
-      concurrentUsers: parseInt(concurrentUsers) || 1,
     };
     
     onSubmit(scenario);
@@ -54,7 +52,7 @@ export function ScenarioForm({ onSubmit }: ScenarioFormProps) {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             <div className="space-y-1.5">
               <Label htmlFor="name" className="text-sm">Name</Label>
               <Input
@@ -134,19 +132,6 @@ export function ScenarioForm({ onSubmit }: ScenarioFormProps) {
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="users" className="text-sm">Users</Label>
-              <Input
-                id="users"
-                type="number"
-                min="1"
-                step="1"
-                value={concurrentUsers}
-                onChange={(e) => setConcurrentUsers(e.target.value)}
-                className="h-9"
-              />
             </div>
           </div>
 

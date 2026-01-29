@@ -97,7 +97,6 @@ function SortableRow({ scenario, onDelete }: SortableRowProps) {
       <TableCell className="tabular-nums">{scenario.bandwidthMbps} Mbps</TableCell>
       <TableCell className="tabular-nums">{scenario.latencyMs} ms</TableCell>
       <TableCell>{getProtocol(scenario.protocolId).name}</TableCell>
-      <TableCell className="text-center tabular-nums">{scenario.concurrentUsers}</TableCell>
       <TableCell className="text-right tabular-nums text-sky-600 dark:text-sky-400">
         {formatTime(scenario.result.baseTransferTime)}
       </TableCell>
@@ -210,7 +209,6 @@ export function ScenarioTable({ scenarios, onDelete, onReorder }: ScenarioTableP
                     <TableHead className="font-semibold">Bandwidth</TableHead>
                     <TableHead className="font-semibold">Latency</TableHead>
                     <TableHead className="font-semibold">Protocol</TableHead>
-                    <TableHead className="font-semibold text-center">Users</TableHead>
                     <TableHead className="font-semibold text-right">Base Time</TableHead>
                     <TableHead className="font-semibold text-right">Overhead</TableHead>
                     <TableHead className="font-semibold text-right">Total</TableHead>
