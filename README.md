@@ -1,4 +1,5 @@
 # Latency Calculator
+[Use it online](https://latency-calc.bpog.cloud/)
 
 As a born and raised sandgroper (i.e. from Perth, Western Australia) I often hear that latency doesn't matter, especially for downloads. That's not always the case. This web tool calculates how network latency theoretically impacts file transfer performance across different protocols.
 
