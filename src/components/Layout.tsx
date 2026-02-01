@@ -1,6 +1,8 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { SiGithub } from '@icons-pack/react-simple-icons';
+import { Button } from '@/components/ui/button';
 
 export function Layout() {
   return (
@@ -44,6 +46,14 @@ export function Layout() {
               </NavLink>
             </nav>
             <ThemeToggle />
+            <Button
+              variant="ghost"
+              size="icon"
+            >
+              <a href="https://github.com/ByronPogson/latency-calculator" target='blank'>
+              <SiGithub className="h-5 w-5" />
+              </a>
+            </Button>
           </div>
         </div>
       </header>
@@ -56,7 +66,7 @@ export function Layout() {
       {/* Footer */}
       <footer className="border-t bg-muted/30">
         <div className="max-w-5xl mx-auto px-6 py-6 text-center text-sm text-muted-foreground">
-          Built to help understand how latency impacts file transfer performance
+          Copyright 2026 <a href="https://www.bpog.cloud/" target='blank'>Byron Pogson</a>. Built to help understand how latency impacts file transfer performance. Contribute on <a href="https://github.com/ByronPogson/latency-calculator">GitHub</a>
         </div>
       </footer>
     </div>
