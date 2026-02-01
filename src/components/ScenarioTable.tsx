@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Trash2, Info, GripVertical } from 'lucide-react';
 import {
   DndContext,
@@ -61,9 +62,11 @@ function CalculationTooltip({ scenario }: { scenario: ScenarioWithResult }) {
 interface SortableRowProps {
   scenario: ScenarioWithResult;
   onDelete: (id: string) => void;
+  isExpanded: boolean;
+  onToggleExpand: (id: string) => void;
 }
 
-function SortableRow({ scenario, onDelete }: SortableRowProps) {
+function SortableRow({ scenario, onDelete, isExpanded, onToggleExpand }: SortableRowProps) {
   const {
     attributes,
     listeners,
@@ -80,63 +83,79 @@ function SortableRow({ scenario, onDelete }: SortableRowProps) {
   };
 
   return (
-    <TableRow ref={setNodeRef} style={style} className={isDragging ? 'bg-muted' : ''}>
-      <TableCell className="w-[40px]">
-        <button
-          className="cursor-grab active:cursor-grabbing p-1 text-muted-foreground hover:text-foreground"
-          {...attributes}
-          {...listeners}
-        >
-          <GripVertical className="h-4 w-4" />
-        </button>
-      </TableCell>
-      <TableCell className="font-medium">{scenario.name}</TableCell>
-      <TableCell className="tabular-nums">
-        {scenario.fileSizeValue} {scenario.fileSizeUnit}
-      </TableCell>
-      <TableCell className="tabular-nums">{scenario.bandwidthMbps} Mbps</TableCell>
-      <TableCell className="tabular-nums">{scenario.latencyMs} ms</TableCell>
-      <TableCell>{getProtocol(scenario.protocolId).name}</TableCell>
-      <TableCell className="text-right tabular-nums text-sky-600 dark:text-sky-400">
-        {formatTime(scenario.result.baseTransferTime)}
-      </TableCell>
-      <TableCell className="text-right tabular-nums text-yellow-600 dark:text-yellow-400">
-        +{formatTime(scenario.result.latencyOverhead)}
-      </TableCell>
-      <TableCell className="text-right tabular-nums font-semibold">
-        {formatTime(scenario.result.totalTime)}
-      </TableCell>
-      <TableCell>
-        <div className="flex items-center gap-1">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-foreground"
-              >
-                <Info className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="left" className="max-w-md p-3">
-              <CalculationTooltip scenario={scenario} />
-            </TooltipContent>
-          </Tooltip>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onDelete(scenario.id)}
-            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+    <>
+      <TableRow ref={setNodeRef} style={style} className={isDragging ? 'bg-muted' : ''}>
+        <TableCell className="w-[40px]">
+          <button
+            className="cursor-grab active:cursor-grabbing p-1 text-muted-foreground hover:text-foreground"
+            {...attributes}
+            {...listeners}
           >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      </TableCell>
-    </TableRow>
+            <GripVertical className="h-4 w-4" />
+          </button>
+        </TableCell>
+        <TableCell className="font-medium">{scenario.name}</TableCell>
+        <TableCell className="tabular-nums">
+          {scenario.fileSizeValue} {scenario.fileSizeUnit}
+        </TableCell>
+        <TableCell className="tabular-nums">{scenario.bandwidthMbps} Mbps</TableCell>
+        <TableCell className="tabular-nums">{scenario.latencyMs} ms</TableCell>
+        <TableCell>{getProtocol(scenario.protocolId).name}</TableCell>
+        <TableCell className="text-right tabular-nums text-sky-600 dark:text-sky-400">
+          {formatTime(scenario.result.baseTransferTime)}
+        </TableCell>
+        <TableCell className="text-right tabular-nums text-yellow-600 dark:text-yellow-400">
+          +{formatTime(scenario.result.latencyOverhead)}
+        </TableCell>
+        <TableCell className="text-right tabular-nums font-semibold">
+          {formatTime(scenario.result.totalTime)}
+        </TableCell>
+        <TableCell>
+          <div className="flex items-center gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onToggleExpand(scenario.id)}
+                  className={`h-8 w-8 ${isExpanded ? 'text-foreground bg-muted' : 'text-muted-foreground hover:text-foreground'}`}
+                >
+                  <Info className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="left" className="max-w-md p-3 hidden md:block">
+                <CalculationTooltip scenario={scenario} />
+              </TooltipContent>
+            </Tooltip>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onDelete(scenario.id)}
+              className="h-8 w-8 text-muted-foreground hover:text-destructive"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </TableCell>
+      </TableRow>
+      {isExpanded && (
+        <TableRow className="bg-muted/50 hover:bg-muted/50">
+          <TableCell colSpan={10} className="py-3 px-4">
+            <CalculationTooltip scenario={scenario} />
+          </TableCell>
+        </TableRow>
+      )}
+    </>
   );
 }
 
 export function ScenarioTable({ scenarios, onDelete, onReorder }: ScenarioTableProps) {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const handleToggleExpand = (id: string) => {
+    setExpandedId((prev) => (prev === id ? null : id));
+  };
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -225,6 +244,8 @@ export function ScenarioTable({ scenarios, onDelete, onReorder }: ScenarioTableP
                         key={scenario.id}
                         scenario={scenario}
                         onDelete={onDelete}
+                        isExpanded={expandedId === scenario.id}
+                        onToggleExpand={handleToggleExpand}
                       />
                     ))}
                   </SortableContext>
